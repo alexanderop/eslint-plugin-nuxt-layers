@@ -67,11 +67,7 @@ tester.run('layer-boundaries', rule, {
       options: [baseOptions],
       errors: [
         {
-          messageId: 'layerViolation',
-          data: {
-            fromLayer: 'cart',
-            toLayer: 'products',
-          },
+          message: 'cart cannot import from products. Allowed imports for cart: shared',
         },
       ],
     },
@@ -80,21 +76,21 @@ tester.run('layer-boundaries', rule, {
       filename: '/repo/layers/shared/utils/format.js',
       code: "import Cart from '#layers/cart/components/Cart.vue';",
       options: [baseOptions],
-      errors: [{ messageId: 'layerViolation' }],
+      errors: [{ message: 'shared cannot import from cart. This layer must not import from other layers.' }],
     },
     {
       name: 'shared cannot import products',
       filename: '/repo/layers/shared/utils/format.js',
       code: "import ProductList from '#layers/products/components/ProductList.vue';",
       options: [baseOptions],
-      errors: [{ messageId: 'layerViolation' }],
+      errors: [{ message: 'shared cannot import from products. This layer must not import from other layers.' }],
     },
     {
       name: 'products cannot import cart',
       filename: '/repo/layers/products/components/ProductList.vue',
       code: "import Cart from '#layers/cart/components/Cart.vue';",
       options: [baseOptions],
-      errors: [{ messageId: 'layerViolation' }],
+      errors: [{ message: 'products cannot import from cart. Allowed imports for products: shared' }],
     },
   ],
 })

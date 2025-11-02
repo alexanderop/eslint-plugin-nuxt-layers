@@ -2,6 +2,7 @@
   "name": "eslint-plugin-nuxt-layers",
   "version": "0.1.0",
   "type": "module",
+  "packageManager": "pnpm@10.18.3",
   "description": "ESLint rules to enforce Nuxt 4 layer architecture with configurable imports",
   "main": "src/index.js",
   "exports": {
@@ -30,7 +31,7 @@
     "test": "node tests/layer-boundaries.test.js",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "npm publish"
+    "release": "pnpm publish"
   },
   "license": "MIT",
   "repository": {
