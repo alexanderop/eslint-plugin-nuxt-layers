@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-nuxt-layers",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "packageManager": "pnpm@10.18.3",
   "description": "ESLint rules to enforce Nuxt 4 layer architecture with configurable imports",
