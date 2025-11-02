@@ -50,4 +50,4 @@ jobs:
       - name: Configure npm authentication
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-      - run: pnpm publish --no-git-checks
+      - run: pnpm publish --no-git-checks --access public
