@@ -12,6 +12,15 @@ In a Nuxt 4 project with multiple layers, you want to prevent unwanted dependenc
 
 This plugin helps you enforce these rules automatically through ESLint.
 
+## Features
+
+✅ **Comprehensive import detection** - Checks ES6 imports, dynamic imports, CommonJS require, export-from, and export-all
+✅ **Smart path resolution** - Handles both alias imports (`#layers/shared`) and relative imports (`../../shared`)
+✅ **Configuration validation** - Warns you if you reference non-existent layers in your config
+✅ **Helpful error messages** - Shows the import path and suggests how to fix violations
+✅ **Cross-platform** - Works on Windows, macOS, and Linux
+✅ **Flexible naming** - Supports layer names with hyphens, underscores, and special characters
+
 ## Install
 
 ```bash
@@ -139,8 +148,19 @@ The plugin inspects import statements in your files and checks:
 1. **Current layer**: Determined by file path (e.g., `layers/products/components/ProductList.vue` is in the `products` layer)
 2. **Imported layer**: Detected from import paths:
    - Alias imports: `import X from '#layers/shared/utils'` → `shared` layer
-   - Relative imports: `import X from '../shared/utils'` → `shared` layer
+   - Relative imports: `import X from '../../shared/utils'` → `shared` layer (supports multi-level paths)
 3. **Permission**: Checks if the current layer is allowed to import from the imported layer
+
+### Supported Import Types
+
+The plugin checks all types of imports and exports:
+
+- **ES6 imports**: `import X from '#layers/shared/utils'`
+- **Dynamic imports**: `const X = await import('#layers/shared/utils')`
+- **CommonJS require**: `const X = require('#layers/shared/utils')`
+- **Export from**: `export { X } from '#layers/shared/utils'`
+- **Export all**: `export * from '#layers/shared/utils'`
+- **Relative imports**: `import X from '../../shared/utils'`
 
 If a forbidden import is detected, ESLint reports an error with a helpful message.
 
@@ -149,13 +169,32 @@ If a forbidden import is detected, ESLint reports an error with a helpful messag
 ```js
 // In layers/cart/components/Cart.vue
 import ProductList from '#layers/products/components/ProductList.vue'
-// ❌ Error: cart cannot import from products. Allowed imports for cart: shared
+// ❌ Error: cart cannot import from products (#layers/products/components/ProductList.vue).
+//    Allowed imports: [shared]. To allow this import, add "products" to the canImport array for "cart".
 ```
 
 ```js
 // In layers/shared/utils/format.js
 import Cart from '#layers/cart/components/Cart.vue'
-// ❌ Error: shared cannot import from cart. This layer must not import from other layers.
+// ❌ Error: shared cannot import from cart (#layers/cart/components/Cart.vue).
+//    This layer must not import from other layers.
+```
+
+```js
+// In layers/products/components/ProductList.vue
+const Cart = await import('#layers/cart/utils')
+// ❌ Error: products cannot import from cart (#layers/cart/utils).
+//    Allowed imports: [shared]. To allow this import, add "cart" to the canImport array for "products".
+```
+
+### Configuration validation
+
+The plugin validates your configuration and reports errors for common mistakes:
+
+```js
+layers: {
+  products: ['shared', 'typo-layer'], // ❌ Error: Layer "products" references non-existent layer "typo-layer"
+}
 ```
 
 ## Project structure
@@ -171,12 +210,14 @@ your-project/
 │   │   └── components/
 │   ├── cart/
 │   │   └── components/
+│   ├── my-feature/          # Layer names with hyphens are supported
+│   │   └── components/
 ├── app/
 │   └── pages/
 └── nuxt.config.ts
 ```
 
-You can customize the `root` directory name and layer names in the configuration.
+You can customize the `root` directory name and layer names in the configuration. Layer names with hyphens, underscores, and other characters are fully supported.
 
 ## Debugging
 
@@ -184,8 +225,9 @@ If the rule is not working as expected:
 
 1. **Check file paths**: The layer is detected from the file path. Make sure your files are in `layers/{layerName}/...`
 2. **Check aliases**: The plugin looks for imports starting with your configured aliases
-3. **Check layer names**: Layer names in config must match folder names exactly
-4. **Enable ESLint debug**: Run `ESLINT_DEBUG=eslint:cli-engine eslint yourfile.js` to see what's happening
+3. **Check layer names**: Layer names in config must match folder names exactly (the plugin will warn you if you reference non-existent layers)
+4. **Check import types**: The rule checks ES6 imports, dynamic imports, require statements, and export statements
+5. **Enable ESLint debug**: Run `ESLINT_DEBUG=eslint:cli-engine eslint yourfile.js` to see what's happening
 
 ## Development
 
